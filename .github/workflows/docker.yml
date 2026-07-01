@@ -24,10 +24,6 @@ on:
         required: false
         default: "ghcr.io"
         type: string
-      platforms:
-        required: false
-        default: "linux/amd64,linux/arm64"
-        type: string
       rotate:
         required: false
         default: true
@@ -39,8 +35,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v4
       - name: Set up docker buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4.1.0
       - name: Log into GHCR
@@ -58,7 +52,7 @@ jobs:
           tags: |
             type=raw,value=${{ inputs.label }}
             type=raw,value=latest
-      - name: Build and push multi-platform image
+      - name: Build and push amd64 image
         uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7.2.0
         with:
           context: ${{ inputs.path }}
@@ -68,7 +62,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: ${{ inputs.platforms }}
+          platforms: linux/amd64
       - name: Delete old images
         if: ${{ inputs.push && inputs.rotate }}
         uses: dataaxiom/ghcr-cleanup-action@v1
